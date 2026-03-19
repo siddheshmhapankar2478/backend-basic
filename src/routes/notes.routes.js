@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
+const noteModel = require("../models/note.models");
 const express = require("express");
 const router = express.Router();
 
@@ -12,7 +13,7 @@ router.get("/notes", (req, res) => {
   res.status(200).json({ success: true, data: notesList });
 });
 
-router.post("/notes", (req, res) => {
+router.post("/notes", async (req, res) => {
   const reqBody = req.body;
   const { name, is_completed, description } = reqBody || {};
   if (!name || is_completed === undefined || !description)
@@ -20,6 +21,8 @@ router.post("/notes", (req, res) => {
       success: false,
       error: "name, description and is_completed are required",
     });
+
+  await noteModel.create({ name, is_completed, description });
 
   notesList.push({ id: uuidv4(), name, description });
   res.status(201).json({ success: true, data: "Note Added Successfully" });
